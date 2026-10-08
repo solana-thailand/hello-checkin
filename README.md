@@ -87,6 +87,27 @@ skill ของเรา (Solana Thailand) อยู่ใน repo นี้แ�
 ถือว่าเป็น workspace skill และ sync เข้าโฟลเดอร์ของ agent ให้เอง (เช่น `.claude/skills/`) ส่วน Codex, Copilot,
 Goose อ่าน `.agents/skills/` ได้โดยตรง
 
+### ขั้นที่ 3: ให้ agent เขียน `check_in` (`git checkout step-3`)
+
+พิมพ์ให้ agent ประมาณนี้:
+
+> เขียน instruction `check_in` ด้วย Pinocchio 0.11 ที่ล้มเหลวเมื่อเลย `deadline` โดย deadline มาใน instruction data
+> (i64 little-endian 8 ไบต์ เป็น unix seconds)
+
+สิ่งที่ `step-3` มี (`src/lib.rs`):
+
+- กฎทั้งหมดอยู่ในฟังก์ชัน pure ตัวเดียว `validate_check_in(now, deadline)` ไม่อ่านนาฬิกา ไม่แตะ account
+- ปฏิเสธเมื่อ `now > deadline` วินาทีที่เท่ากับ deadline ยังเช็กอินได้ (ช่วง `..=deadline`) เป็น operator เดียวกับ BeThere
+- error `DeadlinePassed` กลายเป็น `ProgramError::Custom(1)` ซึ่งบน chain เห็นเป็น `custom program error: 0x1`
+- อ่านนาฬิกาครั้งเดียวต่อ instruction (`Clock::get()?.unix_timestamp`) และ `entrypoint!` กับการอ่านนาฬิกาอยู่ใต้
+  `#[cfg(target_os = "solana")]` เพื่อให้เทสต์บนเครื่องเรา link ได้
+- ข้อลดรูปของ hello world: ผู้เรียกส่ง deadline มาเอง โปรแกรมจริง (BeThere) เก็บ deadline ไว้ใน account ที่ผู้เข้าร่วมเลือกเองไม่ได้
+
+```sh
+cargo build
+cargo build-sbf          # ได้ target/deploy/hello_checkin.so
+```
+
 ## English
 
 We write one small Solana program with Pinocchio. It has one rule: a check-in is accepted only until a deadline.
@@ -170,7 +191,30 @@ Our skills (Solana Thailand) ship in this repo, in `.agents/skills/`. Nothing to
 as workspace skills and syncs them into your agent's folder (for example `.claude/skills/`); Codex, Copilot and
 Goose read `.agents/skills/` directly.
 
-_Steps 3 to 5 arrive with their tags. / ขั้นที่ 3 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
+### Step 3: the agent writes `check_in` (`git checkout step-3`)
+
+Ask your agent something like:
+
+> Write a `check_in` instruction with Pinocchio 0.11 that fails after `deadline`. The deadline arrives in the
+> instruction data (8 bytes, i64 little-endian unix seconds).
+
+What `step-3` contains (`src/lib.rs`):
+
+- the whole rule in one pure function, `validate_check_in(now, deadline)`: no clock read, no accounts;
+- it rejects when `now > deadline`, so the deadline second itself is still open (`..=deadline`), the same operator
+  as BeThere;
+- `DeadlinePassed` becomes `ProgramError::Custom(1)`, shown on chain as `custom program error: 0x1`;
+- the clock is read once per instruction (`Clock::get()?.unix_timestamp`); `entrypoint!` and the clock read are
+  behind `#[cfg(target_os = "solana")]` so host tests link;
+- the hello-world simplification, said out loud: the caller passes the deadline. A real program (BeThere) keeps it
+  in an account the attendee cannot choose.
+
+```sh
+cargo build
+cargo build-sbf          # writes target/deploy/hello_checkin.so
+```
+
+_Steps 4 to 5 arrive with their tags. / ขั้นที่ 4 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
 
 ## Tested / ทดสอบแล้ว
 
