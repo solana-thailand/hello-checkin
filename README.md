@@ -60,6 +60,33 @@ cargo agents init --add-agent <agent ของคุณ> --hook-scope project   
 cargo build
 ```
 
+### ขั้นที่ 2: skill ให้ agent (`git checkout step-2`)
+
+**ก. ทางการ: skill ของ Solana Foundation** (https://solana.com/SKILL.md, MIT; เราลิงก์ไป ไม่ได้คัดลอกมาไว้ใน repo นี้)
+
+```sh
+npx skills add https://github.com/solana-foundation/solana-dev-skill
+```
+
+คำสั่งนี้อาจถามว่าจะติดตั้งให้ agent ตัวไหน
+
+**ข. Symposium (`cargo agents`)**: เลือก skill ให้อัตโนมัติจาก dependency ใน `Cargo.toml`
+
+```sh
+cargo binstall symposium                                  # ที่บ้าน (Intel Mac: cargo install symposium)
+cargo agents init --add-agent <agent> --hook-scope project   # ที่บ้าน ครั้งเดียว
+cargo agents sync -v                                      # ในห้อง ประมาณ 1 วินาที
+```
+
+`sync -v` บอกเหตุผลของแต่ละ skill: เพราะมี `pinocchio` จึงติดตั้ง `solana-program-time-windows` (skill ของเรา)
+และติดตั้ง `find-crate-source`, `rust-best-practice` ของ Symposium เองด้วย พร้อมเขียน hook ลงไฟล์ตั้งค่าของ agent
+ในโปรเจกต์ (เช่น `.claude/settings.json`) กลุ่ม skill ของ Foundation ใน Symposium 0.5.1 จะ match แต่เจอ 0 skill
+(บั๊ก `metadata` ใน Symposium 0.5.1) จึงใช้ทาง ก. แทน
+
+skill ของเรา (Solana Thailand) อยู่ใน repo นี้แล้วที่ `.agents/skills/` ไม่ต้องตั้งค่าอะไรเพิ่ม: Symposium
+ถือว่าเป็น workspace skill และ sync เข้าโฟลเดอร์ของ agent ให้เอง (เช่น `.claude/skills/`) ส่วน Codex, Copilot,
+Goose อ่าน `.agents/skills/` ได้โดยตรง
+
 ## English
 
 We write one small Solana program with Pinocchio. It has one rule: a check-in is accepted only until a deadline.
@@ -115,7 +142,35 @@ What `step-1` contains (to type it yourself: `cargo init --lib --name hello-chec
 cargo build
 ```
 
-_Steps 2 to 5 arrive with their tags. / ขั้นที่ 2 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
+### Step 2: skills for your agent (`git checkout step-2`)
+
+**a. The official route: the Solana Foundation's skills** (https://solana.com/SKILL.md, MIT; we link to them, we do
+not copy them into this repo)
+
+```sh
+npx skills add https://github.com/solana-foundation/solana-dev-skill
+```
+
+It may ask which agents to install for.
+
+**b. Symposium (`cargo agents`)**: picks skills from the dependencies in `Cargo.toml`
+
+```sh
+cargo binstall symposium                                     # at home (Intel Mac: cargo install symposium)
+cargo agents init --add-agent <agent> --hook-scope project   # at home, once
+cargo agents sync -v                                         # in the room, about 1 s
+```
+
+`sync -v` prints why each skill is there: because of `pinocchio` it installs `solana-program-time-windows` (our
+skill). It also installs Symposium's own `find-crate-source` and `rust-best-practice`, and writes hooks into your
+agent's project settings (for example `.claude/settings.json`). In Symposium 0.5.1 the Foundation group matches but
+finds 0 skills (a `metadata` bug in Symposium 0.5.1), which is why route a exists.
+
+Our skills (Solana Thailand) ship in this repo, in `.agents/skills/`. Nothing to configure: Symposium treats them
+as workspace skills and syncs them into your agent's folder (for example `.claude/skills/`); Codex, Copilot and
+Goose read `.agents/skills/` directly.
+
+_Steps 3 to 5 arrive with their tags. / ขั้นที่ 3 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
 
 ## Tested / ทดสอบแล้ว
 
