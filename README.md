@@ -125,6 +125,27 @@ cargo build-sbf && cargo test
 - ถ้าตั้ง `target-dir` ไว้ที่อื่นใน config ของ cargo ให้รัน `CARGO_TARGET_DIR=$PWD/target cargo build-sbf && CARGO_TARGET_DIR=$PWD/target cargo test`
 - ลองเปลี่ยน `>` เป็น `>=` ใน `validate_check_in` แล้วรันใหม่: เทสต์ที่ `deadline` ต้องพัง นั่นคือเทสต์ตรึงขอบเขตไว้จริง
 
+### ขั้นที่ 5: บน devnet (ผู้บรรยายสาธิต, `git checkout step-5`)
+
+ผู้บรรยายเป็นคน deploy คนเดียว (30 คน deploy พร้อมกันบน devnet และใช้ faucet IP เดียวกัน เสี่ยงโดยไม่ได้อะไร)
+ใครอยากลองเองทำได้หลังจบ ใส่ `-u devnet` ทุกคำสั่ง **อย่าใช้ `solana config set`** เพื่อไม่เปลี่ยน config ของเครื่อง
+
+```sh
+solana balance -u devnet                       # 0.05 SOL พอ (deploy หนึ่งครั้งประมาณ 0.025 SOL)
+cargo build-sbf
+solana program deploy -u devnet target/deploy/hello_checkin.so --program-id target/deploy/hello_checkin-keypair.json
+solana address -k target/deploy/hello_checkin-keypair.json    # program id ของคุณ
+
+cd client && npm ci
+PROGRAM_ID=<program id> node check-in.mjs 60    # deadline อีก 60 วินาที: Success
+PROGRAM_ID=<program id> node check-in.mjs -60   # deadline ผ่านไปแล้ว 60 วินาที: custom program error: 0x1
+```
+
+แต่ละคำสั่งพิมพ์ลิงก์ Explorer ถ้าไม่ใส่ `PROGRAM_ID` จะใช้ reference deployment จาก dry run:
+[`F7zvaAQ6ydv25hBUnh7tFkMaH7ixj4Y9r8XS7dxDamuF`](https://explorer.solana.com/address/F7zvaAQ6ydv25hBUnh7tFkMaH7ixj4Y9r8XS7dxDamuF?cluster=devnet)
+client อ่าน keypair จาก `KEYPAIR` หรือ `~/.config/solana/id.json` และไม่พิมพ์มันออกมา
+ไฟล์ `target/deploy/hello_checkin-keypair.json` คือ keypair ของ program อยู่ใน `target/` ซึ่ง git ignore ไว้ อย่า commit
+
 ## English
 
 We write one small Solana program with Pinocchio. It has one rule: a check-in is accepted only until a deadline.
@@ -250,7 +271,28 @@ cargo build-sbf && cargo test
 - Try changing `>` to `>=` in `validate_check_in` and run again: the `deadline` tests must fail. That is how you
   know the tests pin the boundary.
 
-_Steps 5 to 5 arrive with their tags. / ขั้นที่ 5 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
+### Step 5: on devnet (the presenter shows it, `git checkout step-5`)
+
+The presenter deploys, once. Thirty people deploying to devnet at the same time, from one faucet IP, is a risk
+with no upside; try it yourself after the talk. Pass `-u devnet` on every command. **Do not run
+`solana config set`**: it would change your machine's global Solana config.
+
+```sh
+solana balance -u devnet                       # 0.05 SOL is enough (one deploy is about 0.025 SOL)
+cargo build-sbf
+solana program deploy -u devnet target/deploy/hello_checkin.so --program-id target/deploy/hello_checkin-keypair.json
+solana address -k target/deploy/hello_checkin-keypair.json    # your program id
+
+cd client && npm ci
+PROGRAM_ID=<program id> node check-in.mjs 60    # deadline 60 s from now: Success
+PROGRAM_ID=<program id> node check-in.mjs -60   # deadline 60 s ago: custom program error: 0x1
+```
+
+Each run prints an Explorer link. Without `PROGRAM_ID` the client uses the reference deployment from the dry run:
+[`F7zvaAQ6ydv25hBUnh7tFkMaH7ixj4Y9r8XS7dxDamuF`](https://explorer.solana.com/address/F7zvaAQ6ydv25hBUnh7tFkMaH7ixj4Y9r8XS7dxDamuF?cluster=devnet).
+The client reads the payer from `KEYPAIR` or `~/.config/solana/id.json` and never prints it.
+`target/deploy/hello_checkin-keypair.json` is the program's keypair; it lives in `target/`, which git ignores. Do not
+commit it.
 
 ## Tested / ทดสอบแล้ว
 

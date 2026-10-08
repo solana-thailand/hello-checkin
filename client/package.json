@@ -1,0 +1,10 @@
+{
+  "name": "hello-checkin-client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sends one check_in to devnet: node check-in.mjs 60 (open) or -60 (closed)",
+  "type": "module",
+  "dependencies": {
+    "@solana/web3.js": "^1.99.0"
+  }
+}
