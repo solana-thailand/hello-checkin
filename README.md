@@ -48,6 +48,18 @@ cargo agents init --add-agent <agent ของคุณ> --hook-scope project   
 `preflight.sh` ไม่ติดตั้งอะไรเอง ไม่แก้ config ของ Solana ไม่พิมพ์ private key และไม่รอรับ input
 `--warm` ต้องรันบน `main` (มีโค้ดครบทุกขั้น) ถ้าอยู่ที่ `step-0` ให้ `git checkout main` ก่อน
 
+### ขั้นที่ 1: โปรเจกต์ (`git checkout step-1`)
+
+สิ่งที่ `step-1` มี (ถ้าอยากพิมพ์เอง: `cargo init --lib --name hello-checkin` แล้ว `cargo add pinocchio@0.11.2`):
+
+- `Cargo.toml` มี `crate-type = ["cdylib", "lib"]`: `cdylib` คือไฟล์ `.so` ที่ `cargo build-sbf` สร้างเพื่อ deploy, `lib` ให้เทสต์ใน `tests/` import ฟังก์ชันได้
+- `pinocchio = "0.11.2"` และ dev-dependencies ของ Mollusk (ใช้ในขั้นที่ 4 ใส่ไว้ก่อนเพื่อให้ `Cargo.lock` เหมือนกันทุกขั้น ไม่ต้องโหลดอะไรเพิ่มในห้อง)
+- `src/lib.rs` ยังว่าง
+
+```sh
+cargo build
+```
+
 ## English
 
 We write one small Solana program with Pinocchio. It has one rule: a check-in is accepted only until a deadline.
@@ -89,7 +101,21 @@ cargo agents init --add-agent <your agent> --hook-scope project   # once; agent 
 `preflight.sh` installs nothing, never changes your Solana config, never prints key material and never waits for
 input. `--warm` needs the full code, so run it on `main`; on `step-0`, `git checkout main` first.
 
-_Steps 1 to 5 arrive with their tags. / ขั้นที่ 1 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
+### Step 1: the project (`git checkout step-1`)
+
+What `step-1` contains (to type it yourself: `cargo init --lib --name hello-checkin`, then `cargo add pinocchio@0.11.2`):
+
+- `Cargo.toml` with `crate-type = ["cdylib", "lib"]`: `cdylib` is the `.so` that `cargo build-sbf` builds for
+  deploy; `lib` lets the tests in `tests/` import the program's functions.
+- `pinocchio = "0.11.2"`, plus the Mollusk dev-dependencies (used in step 4; added now so `Cargo.lock` is the same
+  at every step and nothing downloads in the room).
+- an empty `src/lib.rs`.
+
+```sh
+cargo build
+```
+
+_Steps 2 to 5 arrive with their tags. / ขั้นที่ 2 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
 
 ## Tested / ทดสอบแล้ว
 

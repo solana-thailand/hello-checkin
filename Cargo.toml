@@ -1,0 +1,21 @@
+[package]
+name = "hello-checkin"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+# cdylib: the .so that cargo build-sbf deploys; lib: lets tests/ import validate_check_in.
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+pinocchio = "0.11.2"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = ['cfg(target_os, values("solana"))']
+
+# Used from step 4 (Mollusk SVM tests). In the manifest from step 1 so Cargo.lock never changes between steps.
+[dev-dependencies]
+mollusk-svm = "0.16.0"
+solana-instruction = "3"
+solana-pubkey = "4"
