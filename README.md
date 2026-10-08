@@ -108,6 +108,23 @@ cargo build
 cargo build-sbf          # ได้ target/deploy/hello_checkin.so
 ```
 
+### ขั้นที่ 4: เทสต์ (`git checkout step-4`)
+
+- `tests/validate.rs`: ฟังก์ชัน pure ที่ `deadline - 1` (ผ่าน), `deadline` (ผ่าน), `deadline + 1` (`DeadlinePassed`)
+- `tests/svm.rs` (Mollusk): สามกรณีเดิม แต่รันกับไฟล์ `.so` จริง โดยเลื่อนนาฬิกา และเช็ก error code ตรงตัว
+  (`Custom(1)`) อีกเทสต์ส่งข้อมูลผิดรูปแบบแล้วคาดว่าได้ `InvalidInstructionData`
+
+**ต้อง `cargo build-sbf` ก่อน `cargo test`** เพราะ Mollusk โหลด `target/deploy/hello_checkin.so`:
+
+```sh
+cargo build-sbf && cargo test
+```
+
+- `cargo build-sbf` อาจพิมพ์ `info: uninstalling toolchain ...-sbpf-solana-v...` ถ้าเครื่องมีโปรเจกต์ Solana อื่นที่ใช้
+  platform-tools คนละเวอร์ชัน ไม่ใช่ error
+- ถ้าตั้ง `target-dir` ไว้ที่อื่นใน config ของ cargo ให้รัน `CARGO_TARGET_DIR=$PWD/target cargo build-sbf && CARGO_TARGET_DIR=$PWD/target cargo test`
+- ลองเปลี่ยน `>` เป็น `>=` ใน `validate_check_in` แล้วรันใหม่: เทสต์ที่ `deadline` ต้องพัง นั่นคือเทสต์ตรึงขอบเขตไว้จริง
+
 ## English
 
 We write one small Solana program with Pinocchio. It has one rule: a check-in is accepted only until a deadline.
@@ -214,7 +231,26 @@ cargo build
 cargo build-sbf          # writes target/deploy/hello_checkin.so
 ```
 
-_Steps 4 to 5 arrive with their tags. / ขั้นที่ 4 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
+### Step 4: tests (`git checkout step-4`)
+
+- `tests/validate.rs`: the pure function at `deadline - 1` (ok), `deadline` (ok), `deadline + 1` (`DeadlinePassed`).
+- `tests/svm.rs` (Mollusk): the same three against the built `.so`, warping the clock and asserting the exact
+  error (`Custom(1)`); a fourth sends malformed data and expects `InvalidInstructionData`.
+
+**Run `cargo build-sbf` before `cargo test`**: Mollusk loads `target/deploy/hello_checkin.so`.
+
+```sh
+cargo build-sbf && cargo test
+```
+
+- `cargo build-sbf` may print `info: uninstalling toolchain ...-sbpf-solana-v...` if another Solana project on
+  your machine uses a different platform-tools version. It is not an error.
+- If your cargo config sets `target-dir` elsewhere, run
+  `CARGO_TARGET_DIR=$PWD/target cargo build-sbf && CARGO_TARGET_DIR=$PWD/target cargo test`.
+- Try changing `>` to `>=` in `validate_check_in` and run again: the `deadline` tests must fail. That is how you
+  know the tests pin the boundary.
+
+_Steps 5 to 5 arrive with their tags. / ขั้นที่ 5 ถึง 5 จะมาพร้อม tag ของขั้นนั้น_
 
 ## Tested / ทดสอบแล้ว
 
