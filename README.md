@@ -146,6 +146,23 @@ PROGRAM_ID=<program id> node check-in.mjs -60   # deadline ผ่านไปแ
 client อ่าน keypair จาก `KEYPAIR` หรือ `~/.config/solana/id.json` และไม่พิมพ์มันออกมา
 ไฟล์ `target/deploy/hello_checkin-keypair.json` คือ keypair ของ program อยู่ใน `target/` ซึ่ง git ignore ไว้ อย่า commit
 
+### ต่อไป: agent ที่ลงมือทำได้ (solOS, ผู้บรรยายสาธิต 1 นาที)
+
+ใน workshop นี้ agent *เขียน* โปรแกรม ขั้นต่อไปคือ agent ที่ *อ่านและทำงานบน Solana* เอง
+[solOS](https://github.com/GuiBibeau/solos) ของ Gui Bibeau (Apache-2.0) คือ MCP server ที่ให้ agent อ่านกระเป๋า
+ดูพอร์ต และจำลองธุรกรรม โดยค่าเริ่มต้นเป็นแบบ **อ่านและจำลองเท่านั้น** ผู้บรรยายสาธิตบน devnet (ทดสอบแล้ว 9 ต.ค. 2026, solOS 0.1.0):
+
+```bash
+npx -y @solos-sh/cli@0.1.0 login --provider local --keypair ~/.config/solana/id.json \
+  --rpc-url https://api.devnet.solana.com --profile workshop-devnet
+SOLOS_PROFILE=workshop-devnet npx -y @solos-sh/cli@0.1.0 doctor
+SOLOS_PROFILE=workshop-devnet npx -y @solos-sh/cli@0.1.0 wallet balance   # SOL + devnet USDC
+SOLOS_PROFILE=workshop-devnet npx -y @solos-sh/cli@0.1.0 connect claude --scope project --print   # ดู MCP entry โดยไม่เขียนไฟล์
+```
+
+⚠️ solOS ตั้งใจใช้กับ **mainnet** (swap, ปล่อยกู้ ใช้ Jupiter, Kamino ซึ่งอยู่บน mainnet) ใน workshop ใช้ RPC ของ devnet
+และระดับ read เท่านั้น **อย่าใช้ `--tier execute`**
+
 ## English
 
 We write one small Solana program with Pinocchio. It has one rule: a check-in is accepted only until a deadline.
@@ -293,6 +310,24 @@ Each run prints an Explorer link. Without `PROGRAM_ID` the client uses the refer
 The client reads the payer from `KEYPAIR` or `~/.config/solana/id.json` and never prints it.
 `target/deploy/hello_checkin-keypair.json` is the program's keypair; it lives in `target/`, which git ignores. Do not
 commit it.
+
+### What's next: agents that act (solOS, a 1-minute presenter demo)
+
+In this workshop the agent *writes* a program. Next is an agent that *reads and acts on Solana* itself:
+[solOS](https://github.com/GuiBibeau/solos) by Gui Bibeau (Apache-2.0) is an MCP server that lets an agent read a
+wallet, a portfolio, and simulate transactions; by default it offers **read and simulate tools only**. The presenter
+shows it on devnet (tested 9 Oct 2026, solOS 0.1.0):
+
+```bash
+npx -y @solos-sh/cli@0.1.0 login --provider local --keypair ~/.config/solana/id.json \
+  --rpc-url https://api.devnet.solana.com --profile workshop-devnet
+SOLOS_PROFILE=workshop-devnet npx -y @solos-sh/cli@0.1.0 doctor
+SOLOS_PROFILE=workshop-devnet npx -y @solos-sh/cli@0.1.0 wallet balance   # SOL + devnet USDC
+SOLOS_PROFILE=workshop-devnet npx -y @solos-sh/cli@0.1.0 connect claude --scope project --print   # the MCP entry, nothing written
+```
+
+⚠️ solOS is built for **mainnet** (its swaps and lending use Jupiter and Kamino, which live there). In the workshop,
+use a devnet RPC and the read tier only. **Never `--tier execute`.**
 
 ## Tested / ทดสอบแล้ว
 
